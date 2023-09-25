@@ -1,11 +1,13 @@
 using AppCitas.Data;
 using AppCitas.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-[ApiController]
-[Route("api/[controller]")]
-public class UsersController : ControllerBase
+namespace AppCitas.Controllers;
+
+[Authorize]
+public class UsersController : BaseAPIController
 {
     private readonly DataContext _context;
     public UsersController(DataContext context)
@@ -13,12 +15,14 @@ public class UsersController : ControllerBase
         _context = context;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
     {
         return await _context.Users.ToListAsync();
     }
-
+    
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<ActionResult<AppUser>> GetUser(int id)
     {
