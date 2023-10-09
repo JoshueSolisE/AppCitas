@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { subscribeOn } from 'rxjs';
+import { AccountService } from './_services/account.service';
+import { IUser } from './_models/iuser';
 
 @Component({
   selector: 'app-root',
@@ -9,16 +9,17 @@ import { subscribeOn } from 'rxjs';
 })
 export class AppComponent  implements  OnInit{
   title = 'Citas App';
-  users: any;
 
-  constructor (private http: HttpClient) {
-    
-  }
+  constructor(private accountService: AccountService) {}
+  
   ngOnInit(): void {
-    this.http.get('https://localhost:5001/api/users').subscribe({
-      next: Response => this.users = Response,
-      error: err => console.log(err),
-      complete: () => console.log('done')
-    });
+    this.setCurrentUser();
+  }
+
+  setCurrentUser(): void {
+    const userString = localStorage.getItem('user');
+    if(!userString) return;
+    const user: IUser = JSON.parse(userString);
+    this.accountService.setCurrentUser(user);
   }
 }
