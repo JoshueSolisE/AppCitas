@@ -25,6 +25,7 @@
               "node_modules/bootswatch/dist/quartz/bootstrap.min.css",
               "node_modules/font-awesome/css/font-awesome.min.css",
               "node_modules/ngx-toastr/toastr.css",
+              "node_modules/ngx-spinner/animations/square-loader.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -97,5 +98,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "446ed281-c6e3-4e11-a7a5-d18c73a7f92a"
   }
 }

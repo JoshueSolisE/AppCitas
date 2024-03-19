@@ -1,11 +1,9 @@
-using AppCitas.Data;
+using System.Security.Claims;
 using AppCitas.DTOs;
-using AppCitas.Entities;
 using AppCitas.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AppCitas.Controllers;
 
@@ -33,5 +31,20 @@ public class UsersController : BaseAPIController
     public async Task<ActionResult<MemberDto>> GetUser(string username)
     {
         return await _userRepository.GetMemberAsync(username);
+    }
+
+    [HttpPut]
+    public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
+    {
+        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var user = await _userRepository.GetUserByUsernameAsync(username);
+
+        if(user == null) return NotFound();
+
+        _mapper.Map(memberUpdateDto, user);
+
+        if(await _userRepository.SaveAllAsync()) return NoContent();
+
+        return BadRequest("No se pudo realizar la operación");
     }
 }
