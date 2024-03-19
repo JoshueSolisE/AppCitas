@@ -31,7 +31,7 @@ public class UsersController : BaseAPIController
 
         return Ok(users);
     }
-    
+
     [HttpGet("{username}")]
     public async Task<ActionResult<MemberDto>> GetUser(string username)
     {
@@ -43,11 +43,11 @@ public class UsersController : BaseAPIController
     {
         var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
 
-        if(user == null) return NotFound();
+        if (user == null) return NotFound();
 
         _mapper.Map(memberUpdateDto, user);
 
-        if(await _userRepository.SaveAllAsync()) return NoContent();
+        if (await _userRepository.SaveAllAsync()) return NoContent();
 
         return BadRequest("No se pudo realizar la operación");
     }
@@ -57,7 +57,7 @@ public class UsersController : BaseAPIController
     {
         var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
 
-        if(user == null) return NotFound();
+        if (user == null) return NotFound();
 
         var result = await _photoService.AddPhotoAsync(file);
 
@@ -68,10 +68,19 @@ public class UsersController : BaseAPIController
             Url = result.SecureUrl.AbsoluteUri,
             PublicId = result.PublicId
         };
-        if (user.Photos.Count == 0) photo.IsMain = true;
-        user.Photos.Add(photo);
-        if (await _userRepository.SaveAllAsync()) return _mapper.Map<PhotoDto>(photo);
-        return BadRequest("Hubo un problema al subir tu foto");
 
+        if (user.Photos.Count == 0) photo.IsMain = true;
+
+        user.Photos.Add(photo);
+
+        if (await _userRepository.SaveAllAsync())
+        {
+            return CreatedAtAction(
+                nameof(GetUser),
+                new { username = user.UserName },
+                _mapper.Map<PhotoDto>(photo));
+        }
+
+        return BadRequest("Hubo un problema al subir tu foto");
     }
 }
