@@ -1,12 +1,15 @@
+using AppCitas.Helpers;
 using AppCitas.Interfaces;
+using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.Extensions.Options;
 
 namespace AppCitas.Services;
-
 public class PhotoService : IPhotoService
 {
     private readonly Cloudinary _cloudinary;
-    public PhotoService(Ioptions<CloudinarySettings> config)
+
+    public PhotoService(IOptions<CloudinarySettings> config)
     {
         var acc = new Account
         (
@@ -18,10 +21,10 @@ public class PhotoService : IPhotoService
         _cloudinary = new Cloudinary(acc);
     }
 
-    public Task<ImageUploadResult> AddPhotoAsync(IFormFile file)
+    public async Task<ImageUploadResult> AddPhotoAsync(IFormFile file)
     {
         var uploadResult = new ImageUploadResult();
-        if (file.lenght > 0)
+        if (file.Length > 0)
         {
             using var stream = file.OpenReadStream();
             var uploadParams = new ImageUploadParams
@@ -30,17 +33,17 @@ public class PhotoService : IPhotoService
                 Transformation = new Transformation()
                                     .Height(500).Width(500)
                                     .Crop("fill").Gravity("face"),
-                Folder = "AppCitas-n8"
+                Folder = "citasapp-n8"
             };
             uploadResult = await _cloudinary.UploadAsync(uploadParams);
         }
         return uploadResult;
     }
 
-    public Task<DeletionResult> DeletePhotoAsync(string publicId)
+    public async Task<DeletionResult> DeletePhotoAsync(string publicId)
     {
         var deleteParams = new DeletionParams(publicId);
-        
+
         return await _cloudinary.DestroyAsync(deleteParams);
     }
 }

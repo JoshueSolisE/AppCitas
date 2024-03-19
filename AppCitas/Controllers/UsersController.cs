@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using AppCitas.DTOs;
 using AppCitas.Interfaces;
+using AppCitas.Entities;
+using AppCitas.Extensions;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +41,7 @@ public class UsersController : BaseAPIController
     [HttpPut]
     public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
     {
-        var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername);
+        var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
 
         if(user == null) return NotFound();
 
@@ -53,7 +55,7 @@ public class UsersController : BaseAPIController
     [HttpPost("photo")]
     public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
     {
-        var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername);
+        var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
 
         if(user == null) return NotFound();
 
