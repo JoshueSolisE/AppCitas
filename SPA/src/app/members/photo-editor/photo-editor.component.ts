@@ -5,6 +5,8 @@ import { environment } from 'src/environments/environment';
 import { IUser } from 'src/app/_models/iuser';
 import { AccountService } from 'src/app/_services/account.service';
 import { switchMap, take } from 'rxjs';
+import { IPhoto } from 'src/app/_models/iphoto';
+import { MembersService } from 'src/app/_services/members.service';
 
 @Component({
   selector: 'app-photo-editor',
@@ -18,7 +20,8 @@ export class PhotoEditorComponent implements OnInit {
   baseUrl = environment.apiUrl;
   user: IUser | undefined;
   
-  constructor(private accountService: AccountService) {
+  constructor(private accountService: AccountService,
+    private membersService: MembersService) {
     this.accountService.currentUser$
       .pipe(take(1))
       .subscribe({
@@ -36,12 +39,28 @@ export class PhotoEditorComponent implements OnInit {
     this.hasBaseDropZoneOver = e;
   }
 
+  setMainPhoto(photo: IPhoto) {
+    this.membersService.setMainPhoto(photo.id).subscribe({
+      next: () => {
+        if (this.user && this.member) {
+          this.user.photoUrl = photo.url;
+          this.accountService.setCurrentUser(this.user);
+          this.member.photoUrl = photo.url;
+          this.member.photos.forEach(p => {
+            if (p.isMain) p.isMain = false;
+            if (p.id === photo.id) p.isMain = true;
+          })
+        }
+      }
+    });
+  }
+
   initializeUploader() {
     this.uploader = new FileUploader({
       url: this.baseUrl + "users/photo",
       authToken: "Bearer " + this.user?.token,
       isHTML5: true,
-      allowedFileType: [ 'image' ],
+      allowedFileType: ['image'],
       removeAfterUpload: true,
       autoUpload: false,
       maxFileSize: 10 * 1024 * 1024
